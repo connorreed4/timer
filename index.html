@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#000000">
+<meta name="robots" content="noindex">
+<title>Recipe Timer</title>
+<style>
+  html,body{margin:0;height:100%;background:#000;color:#f2efe9;font:16px/1.5 -apple-system,system-ui,sans-serif}
+  main{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center;box-sizing:border-box}
+  .time{font:700 clamp(3rem,16vw,5.5rem)/1 -apple-system,system-ui,sans-serif;font-variant-numeric:tabular-nums;color:#f0a35e}
+  .lbl{color:#9a9a9a;max-width:30ch}
+  a.btn{display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 22px;border-radius:999px;background:#f0a35e;color:#000;font-weight:700;text-decoration:none}
+  svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+  .err{color:#9a9a9a}
+</style>
+</head>
+<body>
+<main>
+  <div class="time" id="time"></div>
+  <div class="lbl" id="lbl"></div>
+  <a class="btn" id="go" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 2.75h5"/><circle cx="12" cy="13.5" r="7.75"/><path d="M12 13.5V9.25"/><path d="M18.4 6.6l1.35-1.35"/></svg>Start in Clock</a>
+  <div class="err" id="err" hidden>No timer was passed to this page.</div>
+</main>
+<script>
+{
+  // Hands a recipe timer to the "Recipe Timer" iOS Shortcut.
+  // Link format: ?s=<seconds>&l=<label>
+  const p = new URLSearchParams(location.search);
+  const secs = parseInt(p.get("s") || "", 10);
+  const label = (p.get("l") || "Recipe timer").replace(/\|/g, "/").slice(0, 120);
+  const fmt = s => { const h=Math.floor(s/3600), m=Math.floor(s%3600/60), x=s%60; return (h?h+":"+String(m).padStart(2,"0"):m)+":"+String(x).padStart(2,"0"); };
+  if (!Number.isFinite(secs) || secs < 1 || secs > 86400) {
+    document.getElementById("go").hidden = true;
+    document.getElementById("err").hidden = false;
+  } else {
+    const url = "shortcuts://run-shortcut?name=" + encodeURIComponent("Recipe Timer") + "&input=text&text=" + encodeURIComponent(secs + "|" + label);
+    document.getElementById("time").textContent = fmt(secs);
+    document.getElementById("lbl").textContent = label;
+    document.getElementById("go").href = url;
+    location.href = url;
+  }
+}
+</script>
+</body>
+</html>
